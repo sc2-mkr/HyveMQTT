@@ -30,6 +30,10 @@ export default {
     {
       src: '~/plugins/vuex-persist',
       ssr: false
+    },
+    {
+      src: '~/plugins/vue-uuid',
+      ssr: false
     }
   ],
 
