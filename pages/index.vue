@@ -65,21 +65,44 @@
             :disabled="connectionStatus !== connectionStates.CONNECTED"
             value="publish"
           >
-            <v-sheet class="grey lighten-4 rounded-lg pa-5 text-right">
-              <v-text-field
-                rounded
-                filled
-                label="Topic"
-                hide-details
-              ></v-text-field>
+            <v-sheet class="grey lighten-4 rounded-lg pa-5">
+              <div class="d-flex align-center">
+                <v-text-field
+                  v-model="tabs.publish.message.topic"
+                  rounded
+                  filled
+                  label="Topic"
+                  hide-details
+                ></v-text-field>
+                <v-checkbox
+                  v-model="tabs.publish.message.retain"
+                  label="Retain"
+                  class="ml-5"
+                ></v-checkbox>
+                <v-select
+                  v-model="tabs.publish.message.qos"
+                  :items="tabs.publish.qosItems"
+                  style="max-width: 150px"
+                  class="ml-5"
+                  hide-details
+                  rounded
+                  filled
+                  label="QoS"
+                ></v-select>
+              </div>
+
               <v-textarea
+                v-model="tabs.publish.message.message"
                 class="my-3"
                 rounded
                 filled
                 label="Message"
                 hide-details
               ></v-textarea>
-              <v-btn rounded color="secondary">Send</v-btn>
+
+              <div class="d-flex justify-end align-center">
+                <v-btn rounded color="secondary">Send</v-btn>
+              </div>
             </v-sheet>
           </v-tab-item>
           <v-tab-item
@@ -109,6 +132,7 @@
 <script>
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import { connectionStates } from '~/utils/mqtt/Connection'
+import MqttMessageModel from '~/models/mqtt/MqttMessageModel'
 
 export default {
   name: 'Dashboard',
@@ -118,7 +142,25 @@ export default {
       connectionStates,
 
       tabs: {
-        model: 'publish'
+        model: 'publish',
+        publish: {
+          message: new MqttMessageModel(),
+
+          qosItems: [
+            {
+              value: 0,
+              text: 0
+            },
+            {
+              value: 1,
+              text: 1
+            },
+            {
+              value: 2,
+              text: 2
+            }
+          ]
+        }
       }
     }
   },
