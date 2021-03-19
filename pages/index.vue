@@ -78,6 +78,19 @@ export default {
       return this.getConnectionStatus
     }
   },
+  watch: {
+    isConnected: {
+      handler(newVal) {
+        if (newVal)
+          this.$notify({
+            group: 'generic',
+            type: 'success',
+            text: 'Connected to the broker',
+            duration: 99999
+          })
+      }
+    }
+  },
   mounted() {
     if (this.brokers.length > 0) {
       this.selectedBrokerId = this.brokers[0].id
