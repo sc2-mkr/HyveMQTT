@@ -1,12 +1,13 @@
 import mqtt from 'mqtt'
 import BrokerConfigModel from '~/models/broker/BrokerConfigModel'
+import { connectionStates } from '~/utils/mqtt/Connection'
 
 export const state = () => ({
   brokers: [
     new BrokerConfigModel('HiveMQ', 'broker.hivemq.com', 8000, '/mqtt'),
     new BrokerConfigModel('emqx', 'broker.emqx.io', 8083, '/mqtt')
   ],
-  connected: false,
+  connected: connectionStates.DISCONNECTED,
   messages: []
 })
 
@@ -18,17 +19,18 @@ export const getters = {
 
 export const actions = {
   connectToBroker({ commit }, config) {
-    const connectUrl = `${config.useTLS ? 'wss' : 'ws'}://${config.host}:${
-      config.port
+    commit('setConnectionStatus', connectionStates.CONNECTING)
+    const connectUrl = `${config.useTLS ? 'wss' : 'ws'}://${config.host}${
+      config.port && config.port !== '' ? `:${config.port}` : ''
     }${config.endpoint}`
     try {
       const client = mqtt.connect(connectUrl)
       client.on('connect', () => {
-        commit('setConnectionStatus', true)
+        commit('setConnectionStatus', connectionStates.CONNECTED)
         // console.log('Connection succeeded!')
       })
       client.on('error', (error) => {
-        commit('setConnectionStatus', false)
+        commit('setConnectionStatus', connectionStates.DISCONNECTED)
         // console.log('Connection failed', error)
       })
       client.on('message', (topic, message) => {
@@ -37,7 +39,7 @@ export const actions = {
         commit('addMessage')
       })
     } catch (error) {
-      commit('setConnectionStatus', false)
+      commit('setConnectionStatus', connectionStates.DISCONNECTED)
       // console.log('mqtt.connect error', error)
     }
   }

@@ -27,21 +27,45 @@
           dark
           class="rounded-lg"
         >
-          <v-tab :disabled="!isConnected" href="#publish">Publish</v-tab>
-          <v-tab :disabled="!isConnected" href="#subscribe">Subscribe</v-tab>
-          <v-tab :disabled="!isConnected" href="#status">Broker Status</v-tab>
+          <v-tab
+            :disabled="connectionStatus !== connectionStates.CONNECTED"
+            href="#publish"
+            >Publish</v-tab
+          >
+          <v-tab
+            :disabled="connectionStatus !== connectionStates.CONNECTED"
+            href="#subscribe"
+            >Subscribe</v-tab
+          >
+          <v-tab
+            :disabled="connectionStatus !== connectionStates.CONNECTED"
+            href="#status"
+            >Broker Status</v-tab
+          >
 
-          <v-tab-item class="pt-3" :disabled="!isConnected" value="publish">
+          <v-tab-item
+            class="pt-3"
+            :disabled="connectionStatus !== connectionStates.CONNECTED"
+            value="publish"
+          >
             <v-sheet class="grey lighten-4 rounded-lg pa-5 d-flex align-center">
               Publish
             </v-sheet>
           </v-tab-item>
-          <v-tab-item class="pt-3" :disabled="!isConnected" value="subscribe">
+          <v-tab-item
+            class="pt-3"
+            :disabled="connectionStatus !== connectionStates.CONNECTED"
+            value="subscribe"
+          >
             <v-sheet class="grey lighten-4 rounded-lg pa-5 d-flex align-center">
               Subscribe
             </v-sheet>
           </v-tab-item>
-          <v-tab-item class="pt-3" :disabled="!isConnected" value="status">
+          <v-tab-item
+            class="pt-3"
+            :disabled="connectionStatus !== connectionStates.CONNECTED"
+            value="status"
+          >
             <v-sheet class="grey lighten-4 rounded-lg pa-5 d-flex align-center">
               Status
             </v-sheet>
@@ -54,12 +78,14 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from 'vuex'
+import { connectionStates } from '~/utils/mqtt/Connection'
 
 export default {
   name: 'Dashboard',
   data() {
     return {
       selectedBrokerId: null,
+      connectionStates,
 
       tabs: {
         model: 'publish'
@@ -74,20 +100,26 @@ export default {
     brokers() {
       return this.getBrokers
     },
-    isConnected() {
+    connectionStatus() {
       return this.getConnectionStatus
     }
   },
   watch: {
-    isConnected: {
+    connectionStatus: {
       handler(newVal) {
-        if (newVal)
-          this.$notify({
-            group: 'generic',
-            type: 'success',
-            text: 'Connected to the broker',
-            duration: 99999
-          })
+        switch (newVal) {
+          case this.connectionStates.CONNECTED:
+            this.$notify({
+              group: 'generic',
+              type: 'success',
+              text: 'Connected to the broker'
+            })
+            break
+          case this.connectionStates.DISCONNECTED:
+            break
+          case this.connectionStates.CONNECTING:
+            break
+        }
       }
     }
   },
@@ -95,7 +127,7 @@ export default {
     if (this.brokers.length > 0) {
       this.selectedBrokerId = this.brokers[0].id
     }
-    this.setConnectionStatus(false)
+    this.setConnectionStatus(this.connectionStates.DISCONNECTED)
   },
   methods: {
     ...mapActions({
