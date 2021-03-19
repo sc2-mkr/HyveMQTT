@@ -101,7 +101,9 @@
               ></v-textarea>
 
               <div class="d-flex justify-end align-center">
-                <v-btn rounded color="secondary">Send</v-btn>
+                <v-btn rounded color="secondary" @click="sendMessage()">
+                  Send
+                </v-btn>
               </div>
             </v-sheet>
           </v-tab-item>
@@ -203,7 +205,9 @@ export default {
   },
   methods: {
     ...mapActions({
-      connectToBrokerStore: 'brokers/connectToBroker'
+      connectToBrokerStore: 'brokers/connectToBroker',
+      disconnectToBrokerStore: 'brokers/disconnectToBroker',
+      publishMessage: 'brokers/publishMessage'
     }),
     ...mapMutations({
       setConnectionStatus: 'brokers/setConnectionStatus'
@@ -214,7 +218,12 @@ export default {
       )
       this.connectToBrokerStore(brokerConfig)
     },
-    disconnectToBroker() {}
+    disconnectToBroker() {
+      this.disconnectToBrokerStore()
+    },
+    sendMessage() {
+      this.publishMessage(this.tabs.publish.message)
+    }
   }
 }
 </script>

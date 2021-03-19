@@ -2,9 +2,11 @@ import mqtt from 'mqtt'
 import BrokerConfigModel from '~/models/broker/BrokerConfigModel'
 import { connectionStates } from '~/utils/mqtt/Connection'
 
+let client = null
+
 export const state = () => ({
   brokers: [
-    new BrokerConfigModel('HiveMQ', 'broker.hivemq.com', 8000, '/mqtt'),
+    new BrokerConfigModel('HiveMQ', 'broker.mqttdashboard.com', 8000, '/mqtt'),
     new BrokerConfigModel('emqx', 'broker.emqx.io', 8083, '/mqtt')
   ],
   connected: connectionStates.DISCONNECTED,
@@ -24,7 +26,7 @@ export const actions = {
       config.port && config.port !== '' ? `:${config.port}` : ''
     }${config.endpoint}`
     try {
-      const client = mqtt.connect(connectUrl)
+      client = mqtt.connect(connectUrl)
       client.on('connect', () => {
         commit('setConnectionStatus', connectionStates.CONNECTED)
         // console.log('Connection succeeded!')
@@ -42,6 +44,16 @@ export const actions = {
       commit('setConnectionStatus', connectionStates.DISCONNECTED)
       // console.log('mqtt.connect error', error)
     }
+  },
+  disconnectToBroker({ commit }) {
+    client.end()
+    commit('setConnectionStatus', connectionStates.DISCONNECTED)
+  },
+  publishMessage({ _ }, message) {
+    client.publish(message.topic, message.message, {
+      qos: message.qos,
+      retain: message.retain
+    })
   }
 }
 export const mutations = {
