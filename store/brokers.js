@@ -6,11 +6,13 @@ export const state = () => ({
     new BrokerConfigModel('HiveMQ', 'broker.hivemq.com', 8000, '/mqtt'),
     new BrokerConfigModel('emqx', 'broker.emqx.io', 8083, '/mqtt')
   ],
+  connected: false,
   messages: []
 })
 
 export const getters = {
   getBrokers: (state) => state.brokers,
+  getConnectionStatus: (state) => state.connected,
   getMessages: (state) => state.messages
 }
 
@@ -22,10 +24,12 @@ export const actions = {
     try {
       const client = mqtt.connect(connectUrl)
       client.on('connect', () => {
-        console.log('Connection succeeded!')
+        commit('setConnectionStatus', true)
+        // console.log('Connection succeeded!')
       })
       client.on('error', (error) => {
-        console.log('Connection failed', error)
+        commit('setConnectionStatus', false)
+        // console.log('Connection failed', error)
       })
       client.on('message', (topic, message) => {
         // this.receiveNews = this.receiveNews.concat(message)
@@ -33,12 +37,16 @@ export const actions = {
         commit('addMessage')
       })
     } catch (error) {
-      console.log('mqtt.connect error', error)
+      commit('setConnectionStatus', false)
+      // console.log('mqtt.connect error', error)
     }
   }
 }
 export const mutations = {
   addMessage(state, message) {
     state.messages.push(message)
+  },
+  setConnectionStatus(state, connected) {
+    state.connected = connected
   }
 }
