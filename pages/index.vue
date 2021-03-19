@@ -14,8 +14,22 @@
             style="max-width: 420px"
             class="mr-5"
           ></v-select>
-          <v-btn rounded color="secondary" @click="connectToBroker()">
-            Connect
+          <v-btn
+            rounded
+            color="secondary"
+            :loading="connectionStatus === connectionStates.CONNECTING"
+            :disabled="connectionStatus === connectionStates.CONNECTING"
+            @click="
+              connectionStatus === connectionStates.CONNECTED
+                ? disconnectToBroker()
+                : connectToBroker()
+            "
+          >
+            {{
+              connectionStatus === connectionStates.CONNECTED
+                ? 'Disconnect'
+                : 'Connect'
+            }}
           </v-btn>
         </v-sheet>
       </v-col>
@@ -30,26 +44,42 @@
           <v-tab
             :disabled="connectionStatus !== connectionStates.CONNECTED"
             href="#publish"
-            >Publish</v-tab
           >
+            Publish
+          </v-tab>
           <v-tab
             :disabled="connectionStatus !== connectionStates.CONNECTED"
             href="#subscribe"
-            >Subscribe</v-tab
           >
+            Subscribe
+          </v-tab>
           <v-tab
             :disabled="connectionStatus !== connectionStates.CONNECTED"
             href="#status"
-            >Broker Status</v-tab
           >
+            Broker Status
+          </v-tab>
 
           <v-tab-item
             class="pt-3"
             :disabled="connectionStatus !== connectionStates.CONNECTED"
             value="publish"
           >
-            <v-sheet class="grey lighten-4 rounded-lg pa-5 d-flex align-center">
-              Publish
+            <v-sheet class="grey lighten-4 rounded-lg pa-5 text-right">
+              <v-text-field
+                rounded
+                filled
+                label="Topic"
+                hide-details
+              ></v-text-field>
+              <v-textarea
+                class="my-3"
+                rounded
+                filled
+                label="Message"
+                hide-details
+              ></v-textarea>
+              <v-btn rounded color="secondary">Send</v-btn>
             </v-sheet>
           </v-tab-item>
           <v-tab-item
@@ -141,7 +171,8 @@ export default {
         (broker) => broker.id === this.selectedBrokerId
       )
       this.connectToBrokerStore(brokerConfig)
-    }
+    },
+    disconnectToBroker() {}
   }
 }
 </script>
