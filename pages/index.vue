@@ -190,6 +190,11 @@ export default {
             })
             break
           case this.connectionStates.DISCONNECTED:
+            this.$notify({
+              group: 'generic',
+              type: 'error',
+              text: 'Disconnected from the broker'
+            })
             break
           case this.connectionStates.CONNECTING:
             break
