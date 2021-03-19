@@ -34,6 +34,10 @@ export default {
     {
       src: '~/plugins/vue-uuid',
       ssr: false
+    },
+    {
+      src: '~/plugins/vue-notification',
+      ssr: false
     }
   ],
 
