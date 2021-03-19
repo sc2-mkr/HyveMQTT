@@ -101,7 +101,12 @@
               ></v-textarea>
 
               <div class="d-flex justify-end align-center">
-                <v-btn rounded color="secondary" @click="sendMessage()">
+                <v-btn
+                  rounded
+                  color="secondary"
+                  :disabled="connectionStatus !== connectionStates.CONNECTED"
+                  @click="sendMessage()"
+                >
                   Send
                 </v-btn>
               </div>
